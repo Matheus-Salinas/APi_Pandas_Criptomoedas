@@ -222,4 +222,5 @@ def main():
 
 # Executar o script
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    port = int(os.environ.get('PORT', 8080))  # Usa a variável de ambiente PORT ou 8080 por padrão
+    app.run(host="0.0.0.0", port=port, debug=True)
