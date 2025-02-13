@@ -1,18 +1,20 @@
-# Use a imagem base do Python
-FROM python:3.11-slim
+# Use uma imagem base oficial do Python
+FROM python:3.10
 
-# Define o diretório de trabalho
+# Define o diretório de trabalho no contêiner
 WORKDIR /app
 
-# Copia os arquivos de requisitos e instala as dependências
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copia o código da aplicação
+# Copia os arquivos do seu projeto para o contêiner
 COPY . .
 
-# Expõe a porta 8080
+# Instala as dependências
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Define a variável de ambiente do Google Cloud
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/credenciais.json"
+
+# Expor a porta do Flask (se aplicável)
 EXPOSE 8080
 
 # Comando para rodar a aplicação
-CMD ["python", "mainv2.py"]
+CMD ["python", "main.py"]
