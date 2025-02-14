@@ -17,4 +17,4 @@ ENV PORT=8080
 EXPOSE 8080
  
 # Define o comando para iniciar a aplicação (equivalente ao que estava no Procfile)
-CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:8080", "--timeout", "120"]
+CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:8080", "--timeout", "600"]
