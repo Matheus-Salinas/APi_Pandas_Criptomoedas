@@ -179,7 +179,7 @@ def salvar_dados_bigquery(df, tabela):
     job.result()  # Espera a conclusão do job
     logger.info(f"Dados salvos na tabela {tabela} com sucesso.")
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def main():
     try:
         # Criar dataset e tabelas
