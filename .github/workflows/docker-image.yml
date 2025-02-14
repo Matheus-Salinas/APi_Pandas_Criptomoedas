@@ -61,7 +61,7 @@ jobs:
             --platform managed \
             --memory ${{ env.MEMORY }} \
             --no-allow-unauthenticated \
-            --timeout 300
+            --timeout 600
 
       # Capturar a URL do serviço implantado
       - name: Get Service URL
