@@ -7,6 +7,9 @@ WORKDIR /app
 # Copiar os arquivos do projeto para o container
 COPY . /app
 
+# Definir a variável de ambiente com o caminho do arquivo de credenciais no container
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/credentials.json"
+
 # Instalar as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 

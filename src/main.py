@@ -8,12 +8,23 @@ import tempfile
 import logging
 import json
 from flask import Flask, jsonify
+from google.oauth2 import service_account
 
 app = Flask(__name__)
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+# Defina o caminho para o arquivo de credenciais
+credentials_path = '/app/credentials.json'
+
+# Carregue as credenciais
+credentials = service_account.Credentials.from_service_account_file(credentials_path)
+
+# Passe as credenciais ao criar o cliente
+client = secretmanager.SecretManagerServiceClient(credentials=credentials)
 
 # Função para acessar segredos no Google Cloud Secret Manager
 def acessar_segredo(nome_segredo):
@@ -221,5 +232,5 @@ def main():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # Executar o script
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
