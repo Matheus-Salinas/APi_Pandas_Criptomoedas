@@ -21,7 +21,15 @@ def acessar_segredo(nome_segredo):
     resposta = client.access_secret_version(request={"name": nome_segredo})
     return resposta.payload.data.decode("UTF-8")
 
-# Função para carregar credenciais do BigQuery
+def acessar_chave_api():
+    client = secretmanager.SecretManagerServiceClient()
+    nome_segredo = "projects/325835689813/secrets/chave_api_coingecko/versions/latest"
+    resposta = client.access_secret_version(request={"name": nome_segredo})
+    chave_api = resposta.payload.data.decode("UTF-8")
+    # Remove aspas extras, se houver
+    chave_api = chave_api.strip('"')
+    return chave_api
+
 def carregar_credenciais():
     credenciais = acessar_segredo("projects/325835689813/secrets/credencial_bigquery/versions/latest")
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
@@ -34,7 +42,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = carregar_credenciais()
 os.environ["GOOGLE_CLOUD_PROJECT"] = "projeto-treinamento-450619"  # Defina o projeto do Google Cloud
 
 # Constantess/ch
-CHAVE_API = acessar_segredo("projects/325835689813/secretave_api_coingecko/versions/latest").strip('"')
+CHAVE_API =  acessar_chave_api()
 TIPO_MOEDA = "brl"
 DATASET_BIGQUERY = 'cripto_pandas_dataset'
 TABELA_HISTORICO = 'tabela_criptomoedas'
