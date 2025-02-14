@@ -1,20 +1,17 @@
-# Use uma imagem base oficial do Python
-FROM python:3.10
+# Usar uma imagem base com Python
+FROM python:3.9-slim
 
-# Define o diretório de trabalho no contêiner
+# Definir o diretório de trabalho
 WORKDIR /app
 
-# Copia os arquivos do seu projeto para o contêiner
-COPY . .
+# Copiar os arquivos do projeto para o container
+COPY . /app
 
-# Instala as dependências
+# Instalar as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Define a variável de ambiente do Google Cloud
-ENV GOOGLE_APPLICATION_CREDENTIALS="/app/credenciais.json"
-
-# Expor a porta do Flask (se aplicável)
+# Expor a porta que o Flask irá rodar
 EXPOSE 8080
 
-# Comando para rodar a aplicação
+# Comando para iniciar a aplicação
 CMD ["python", "main.py"]
