@@ -36,8 +36,14 @@ jobs:
       # Instalar dependências do Python (se necessário)
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+
+      # Validar configuração do Docker antes de buildar a imagem
+      - name: Validate Docker setup
+        run: |
+          docker --version
+          gcloud --version
 
       # Construir a imagem Docker e enviar para o Google Container Registry
       - name: Build and push Docker image
@@ -59,6 +65,12 @@ jobs:
 
       # Capturar a URL do serviço implantado
       - name: Get Service URL
+        id: get-service-url
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.FUNCTION_NAME }} --region ${{ env.REGION }} --format='value(status.url)')
           echo "Service URL: ${SERVICE_URL}"
+          echo "::set-output name=service_url::${SERVICE_URL}"
+
+      # Exibir a URL do serviço para visibilidade
+      - name: Output Service URL
+        run: echo "Service is available at ${{ steps.get-service-url.outputs.service_url }}"
