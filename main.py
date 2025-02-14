@@ -8,23 +8,12 @@ import tempfile
 import logging
 import json
 from flask import Flask, jsonify
-from google.oauth2 import service_account
 
 app = Flask(__name__)
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-# Defina o caminho para o arquivo de credenciais
-credentials_path = '/app/credentials.json'
-
-# Carregue as credenciais
-credentials = service_account.Credentials.from_service_account_file(credentials_path)
-
-# Passe as credenciais ao criar o cliente
-client = secretmanager.SecretManagerServiceClient(credentials=credentials)
 
 # Função para acessar segredos no Google Cloud Secret Manager
 def acessar_segredo(nome_segredo):
@@ -39,12 +28,13 @@ def carregar_credenciais():
         temp_file.write(credenciais)
         return temp_file.name
 
+
 # Configurações do ambiente
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = carregar_credenciais()
 os.environ["GOOGLE_CLOUD_PROJECT"] = "projeto-treinamento-450619"  # Defina o projeto do Google Cloud
 
-# Constantes
-CHAVE_API = acessar_segredo("projects/325835689813/secrets/chave_api_coingecko/versions/latest").strip('"')
+# Constantess/ch
+CHAVE_API = acessar_segredo("projects/325835689813/secretave_api_coingecko/versions/latest").strip('"')
 TIPO_MOEDA = "brl"
 DATASET_BIGQUERY = 'cripto_pandas_dataset'
 TABELA_HISTORICO = 'tabela_criptomoedas'
