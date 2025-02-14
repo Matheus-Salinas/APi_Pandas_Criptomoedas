@@ -12,7 +12,6 @@ env:
   FUNCTION_NAME: 'cripto-app'                # Nome do serviço no Cloud Run
   MEMORY: '2Gi'                              # Memória alocada para o serviço
 
-trigger: none
 
 jobs:
   deploy:
