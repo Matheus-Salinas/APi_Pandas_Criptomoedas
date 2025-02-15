@@ -23,6 +23,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Instalar o Google Cloud SDK
+      - name: Install Google Cloud SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates gnupg
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - 
+          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
+
       # Criar arquivo de credenciais a partir dos secrets do GitHub
       - name: Create Google Cloud credentials file
         run: |
@@ -52,16 +61,15 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-          --image gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }} \
-          --region ${{ env.REGION }} \
-          --platform managed \
-          --memory ${{ env.MEMORY }} \
-          --no-allow-unauthenticated \
-          --timeout 900 \
-          --port 8080 \
-          --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials.json \
-          --set-secrets gcp_credentials=${{ secrets.GCP_CREDENTIALS }}:latest \
-
+            --image gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --memory ${{ env.MEMORY }} \
+            --no-allow-unauthenticated \
+            --timeout 900 \
+            --port 8080 \
+            --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials.json \
+            --set-secrets gcp_credentials=${{ secrets.GCP_CREDENTIALS }}:latest
 
       # Capturar a URL do serviço implantado
       - name: Get Service URL
