@@ -60,8 +60,8 @@ jobs:
           --timeout 900 \
           --port 8080 \
           --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials.json \
-          --add-volume name=gcp-credentials,secret=gcp-autenticador,type=secret \
-          --mount volume=gcp-credentials,path=/app/gcp_credentials.json,subpath=gcp_credentials.json
+          --set-secrets gcp_credentials=${{ secrets.GCP_CREDENTIALS }}:latest \
+
 
       # Capturar a URL do serviço implantado
       - name: Get Service URL
