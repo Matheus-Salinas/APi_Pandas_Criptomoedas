@@ -79,7 +79,7 @@ jobs:
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.FUNCTION_NAME }} --region ${{ env.REGION }} --format='value(status.url)')
           echo "Service URL: ${SERVICE_URL}"
-          echo "::set-output name=service_url::${SERVICE_URL}"
+          echo "service_url=${SERVICE_URL}" >> $GITHUB_OUTPUT
 
       # Exibir a URL do serviço para visibilidade
       - name: Output Service URL
