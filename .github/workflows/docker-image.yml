@@ -9,7 +9,7 @@ on:
 env:
   GCP_PROJECT: 'projeto-treinamento-450619'  # ID fixo do projeto
   REGION: 'us-central1'                      # Região onde o serviço será implantado
-  FUNCTION_NAME: 'cripto-app'                # Nome do serviço no Cloud Run
+  SERVICE_NAME: 'cripto-app'                 # Nome do serviço no Cloud Run
   MEMORY: '2Gi'                              # Memória alocada para o serviço
   GOOGLE_APPLICATION_CREDENTIALS: 'gcloud-key.json'  # Caminho para o arquivo de credenciais
 
@@ -19,20 +19,11 @@ jobs:
     environment: gcp_autenticador  # Define o ambiente correto para acessar os secrets
 
     steps:
-      # Checkout do repositório
+      # Checkout do código
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Instalar o Google Cloud SDK
-      - name: Install Google Cloud SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https ca-certificates gnupg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
-
-      # Criar arquivo de credenciais a partir da variável de ambiente
+      # Criar arquivo de credenciais a partir dos secrets do GitHub
       - name: Create Google Cloud credentials file
         run: |
           echo '${{ secrets.GCP_CREDENTIALS }}' > ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
@@ -50,36 +41,33 @@ jobs:
           pip install -r requirements.txt
           pip install gunicorn  # Instalar Gunicorn
 
-      # Validar configuração do Docker antes de buildar a imagem
-      - name: Validate Docker setup
-        run: |
-          docker --version
-          gcloud --version
-
       # Construir a imagem Docker e enviar para o Google Container Registry
       - name: Build and push Docker image
         run: |
           gcloud auth configure-docker
-          docker build -t gcr.io/${{ env.GCP_PROJECT }}/${{ env.FUNCTION_NAME }} .
-          docker push gcr.io/${{ env.GCP_PROJECT }}/${{ env.FUNCTION_NAME }}
+          docker build -t gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }} .
+          docker push gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }}
 
-      # Implantar no Google Cloud Run
+      # Implantar no Google Cloud Run com portas e volumes corretamente configurados
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ env.FUNCTION_NAME }} \
-            --image gcr.io/${{ env.GCP_PROJECT }}/${{ env.FUNCTION_NAME }} \
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image gcr.io/${{ env.GCP_PROJECT }}/${{ env.SERVICE_NAME }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --memory ${{ env.MEMORY }} \
             --no-allow-unauthenticated \
             --timeout 900 \
-            --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+            --port 8080 \
+            --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials.json \
+            --add-volume name=gcp-credentials,secret=gcp-autenticador \
+            --mount volume=gcp-credentials,path=/app/gcp_credentials.json,subpath=gcp_credentials.json
 
       # Capturar a URL do serviço implantado
       - name: Get Service URL
         id: get-service-url
         run: |
-          SERVICE_URL=$(gcloud run services describe ${{ env.FUNCTION_NAME }} --region ${{ env.REGION }} --format='value(status.url)')
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format='value(status.url)')
           echo "Service URL: ${SERVICE_URL}"
           echo "::set-output name=service_url::${SERVICE_URL}"
 
@@ -87,6 +75,6 @@ jobs:
       - name: Output Service URL
         run: echo "Service is available at ${{ steps.get-service-url.outputs.service_url }}"
 
-      # Remover arquivos sensíveis após a execução para evitar exposição de credenciais
+      # Remover credenciais sensíveis após a execução
       - name: Clean up credentials
         run: rm ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}

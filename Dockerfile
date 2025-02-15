@@ -8,7 +8,8 @@ WORKDIR /app
 # Copia o arquivo de requisitos e instala as dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
- 
+# Define a variável de ambiente para autenticação do Google Cloud
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/gcp_credentials.json"
 # Copia o restante do código da aplicação
 COPY . .
  
