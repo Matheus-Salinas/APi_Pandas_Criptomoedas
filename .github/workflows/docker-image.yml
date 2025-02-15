@@ -16,6 +16,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: gcp_autenticador  # Define o ambiente correto para acessar os secrets
 
     steps:
       # Checkout do repositório
