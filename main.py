@@ -7,6 +7,7 @@ import os
 import tempfile
 import logging
 import json
+import pytz
 from flask import Flask, jsonify
 
 app = Flask(__name__)
@@ -202,9 +203,11 @@ def main():
         # Salvar dados no BigQuery
         salvar_dados_bigquery(df, TABELA_HISTORICO)
 
-        # Registrar execução bem-sucedida
+        fuso_brasil = pytz.timezone("America/Sao_Paulo")
+        data_execucao_br = datetime.now(fuso_brasil)
+
         registro = pd.DataFrame([{
-            "data_execucao": datetime.utcnow(),
+            "data_execucao": data_execucao_br,
             "status": True
         }])
         salvar_dados_bigquery(registro, TABELA_COMPLET)
