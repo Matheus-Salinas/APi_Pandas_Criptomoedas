@@ -204,7 +204,7 @@ def main():
         salvar_dados_bigquery(df, TABELA_HISTORICO)
 
         fuso_brasil = pytz.timezone("America/Sao_Paulo")
-        data_execucao_br = datetime.now(fuso_brasil)
+        data_execucao_br = datetime.now(fuso_brasil).astimezone(pytz.utc)
 
         registro = pd.DataFrame([{
             "data_execucao": data_execucao_br,
